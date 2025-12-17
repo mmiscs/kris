@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title> </title>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background: black;
+  color: #00ff41;
+  font-family: "Courier New", monospace;
+  overflow: hidden;
+}
+
+/* FULLSCREEN WRAPPER */
+#screen {
+  position: fixed;
+  inset: 0;
+  background: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  text-align: left;
+}
+
+/* TAP TO BEGIN OVERLAY */
+#tapOverlay {
+  position: fixed;
+  inset: 0;
+  background: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+#tapText {
+  color: #00ff41;
+  font-size: 14px;
+  letter-spacing: 0.15em;
+  text-transform: lowercase;
+  opacity: 0.85;
+  text-shadow: 0 0 6px #00ff41;
+}
+
+/* TERMINAL TEXT */
+#terminal {
+  display: none;
+  font-size: 16px;
+  line-height: 1.9;
+  text-shadow: 0 0 6px #00ff41;
+  white-space: pre-line;
+}
+
+/* FINAL MESSAGE */
+#message {
+  display: none;
+  color: #eaffea;
+  font-size: 19px;
+  line-height: 1.9;
+  max-width: 640px;
+  opacity: 0;
+  animation: fadeIn 3s forwards;
+}
+
+#message p {
+  margin-bottom: 1.6em;
+}
+
+@keyframes fadeIn {
+  to { opacity: 1; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- TAP GATE -->
+<div id="tapOverlay">
+  <div id="tapText">init-work-modal<br><br>( tap to begin )</div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div id="screen">
+  <div id="terminal"></div>
+
+  <div id="message">
+    <p>Kris,</p>
+
+    <p>
+      I really appreciate everything I’ve learned from you.<br>
+      I’m glad you — and <strong>the Matrix</strong> — had me.
+    </p>
+
+    <p>
+      We will truly miss you.
+    </p>
+
+    <p>— Steve</p>
+  </div>
+</div>
+
+<script>
+const tapOverlay = document.getElementById("tapOverlay");
+const terminal = document.getElementById("terminal");
+const message = document.getElementById("message");
+
+const lines = [
+  "INITIALIZING CONNECTION...",
+  "ACCESSING DEVICE...",
+  "DECRYPTING MEMORY...",
+  "LOADING INTERFACE...",
+  "",
+  "ACCESS GRANTED"
+];
+
+let index = 0;
+
+tapOverlay.addEventListener("click", () => {
+  tapOverlay.style.display = "none";
+  startSequence();
+});
+
+function startSequence() {
+  terminal.style.display = "block";
+  setTimeout(typeLine, 600);
+}
+
+function typeLine() {
+  if (index < lines.length) {
+    terminal.textContent += lines[index] + "\n";
+    index++;
+    setTimeout(typeLine, 900);
+  } else {
+    setTimeout(showMessage, 1800);
+  }
+}
+
+function showMessage() {
+  terminal.style.display = "none";
+  message.style.display = "block";
+}
+</script>
+
+</body>
+</html>
