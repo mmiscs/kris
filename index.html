@@ -25,7 +25,7 @@ html, body {
   padding: 40px;
 }
 
-/* ALWAYS VISIBLE FIRST PAINT */
+/* FIRST PAINT */
 #tap {
   text-align: center;
   letter-spacing: 0.15em;
@@ -35,7 +35,7 @@ html, body {
   text-shadow: 0 0 6px #00ff41;
 }
 
-/* HIDDEN UNTIL START */
+/* SEQUENCE */
 #terminal, #message {
   display: none;
 }
@@ -45,6 +45,7 @@ html, body {
   font-size: 16px;
   line-height: 1.9;
   text-shadow: 0 0 6px #00ff41;
+  z-index: 2;
 }
 
 #message {
@@ -54,10 +55,19 @@ html, body {
   color: #eaffea;
   opacity: 0;
   animation: fadeIn 3s forwards;
+  z-index: 2;
 }
 
 #message p {
   margin-bottom: 1.6em;
+}
+
+/* MATRIX FLURRY CANVAS */
+.matrix-flurry {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
 }
 
 @keyframes fadeIn {
@@ -117,11 +127,61 @@ tap.onclick = () => {
   setTimeout(typeLine, 600);
 };
 
+/* =========================
+   MATRIX FLURRY (1 second)
+========================= */
+function runMatrixFlurry(duration = 1000) {
+  const canvas = document.createElement("canvas");
+  canvas.className = "matrix-flurry";
+  document.body.appendChild(canvas);
+
+  const ctx = canvas.getContext("2d");
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  const fontSize = 14;
+  const columns = Math.floor(canvas.width / fontSize);
+  const drops = Array(columns).fill(0).map(() =>
+    Math.random() * canvas.height / fontSize
+  );
+
+  const interval = setInterval(() => {
+    ctx.fillStyle = "rgba(0,0,0,0.25)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#00ff41";
+    ctx.font = fontSize + "px monospace";
+
+    for (let x = 0; x < drops.length; x++) {
+      const text = chars[Math.floor(Math.random() * chars.length)];
+      ctx.fillText(text, x * fontSize, drops[x] * fontSize);
+      drops[x]++;
+      if (drops[x] * fontSize > canvas.height && Math.random() > 0.96) {
+        drops[x] = 0;
+      }
+    }
+  }, 50);
+
+  setTimeout(() => {
+    clearInterval(interval);
+    canvas.remove(); // 🔑 destroy completely
+  }, duration);
+}
+
+/* =========================
+   TERMINAL FLOW
+========================= */
 function typeLine() {
   if (i < lines.length) {
     terminal.textContent += lines[i] + "\n";
     i++;
-    setTimeout(typeLine, 900);
+
+    // Random chance of glitch flurry between lines
+    if (Math.random() < 0.7) {
+      runMatrixFlurry(900 + Math.random() * 400);
+    }
+
+    setTimeout(typeLine, 900 + Math.random() * 300);
   } else {
     setTimeout(showMessage, 1800);
   }
